@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { User } from "./users.interface";
 import { AuthGuard } from "src/auth/authGuard";
@@ -19,7 +19,7 @@ export class UserController{
         return this.usersService.getUserById(id)
     }
     
-    @HttpCode(201)
+    @HttpCode(HttpStatus.CREATED)
     @Post()
     createUser(@Body() createDto:Omit<User, 'id'>) {
         return this.usersService.createUser(createDto);
