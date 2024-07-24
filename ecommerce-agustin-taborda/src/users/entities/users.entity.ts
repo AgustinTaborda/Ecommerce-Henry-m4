@@ -33,10 +33,16 @@ export class User {
     password: string;
     
     @Column({
-        type: "int",
+        type: "bigint",
         nullable: true
     })
     phone: number;
+    
+    @Column({
+        type: "int",
+        nullable: true
+    })
+    probandom_igraciones: number;
     
     @Column({
         type: "varchar",

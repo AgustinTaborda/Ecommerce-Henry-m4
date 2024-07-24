@@ -11,9 +11,9 @@ export class OrderDetails {
     id: string = uuid();
 
     @Column({
-        type: 'int',
-        // precision: 10, 
-        // scale: 2,
+        type: 'decimal',
+        precision: 10, 
+        scale: 2,
         nullable: false
     })
     price: Number;

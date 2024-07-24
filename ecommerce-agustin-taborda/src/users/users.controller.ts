@@ -1,11 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { User } from "./users.interface";
+import {User as UserEntity} from './entities/users.entity'
 import { AuthGuard } from "src/auth/authGuard";
 
 @Controller('users')
 export class UserController{
-    constructor(private readonly usersService:UsersService) {}
+    constructor(
+        private readonly usersService:UsersService,
+    ) {}
 
     @Get()
     @UseGuards(AuthGuard)
@@ -21,13 +24,13 @@ export class UserController{
     
     @HttpCode(HttpStatus.CREATED)
     @Post()
-    createUser(@Body() createDto:Omit<User, 'id'>) {
+    createUser(@Body() createDto:Omit<UserEntity, 'id'>) {
         return this.usersService.createUser(createDto);
     }
     
     @Put(':id')
     @UseGuards(AuthGuard)
-    updateUser(@Param('id') id:string, @Body() updateDto:Omit<User, 'id'>) {
+    updateUser(@Param('id') id:string, @Body() updateDto:Omit<UserEntity, 'id'>) {
         return this.usersService.updateUser(id, updateDto)
     }
 

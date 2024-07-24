@@ -9,7 +9,7 @@ import { createProductDto } from "./dto/createProduct.dto";
 @Controller('products')
 export class ProductsController{
     constructor(
-        private readonly productsService:ProductsService,
+        // private readonly productsService:ProductsService,
         private productsDBService: ProductsDbService
     ){}
 

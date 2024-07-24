@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entity/product.entity";
 import { Repository } from "typeorm";
@@ -8,13 +8,16 @@ import * as path from 'path';
 
 
 @Injectable()
-export class ProductsDbService {
+export class ProductsDbService implements OnModuleInit{
     constructor(
         @InjectRepository(Product)
         private productDbRepository:Repository<Product>,
         @InjectRepository(Category)
         private categoriesRepository:Repository<Category>
     ) {}
+    async onModuleInit() {
+        await this.seedProducts();
+    }
 
     async createProduct(createProductDto: createProductDto): Promise<Product> {
         const { name, description, price, stock, imgUrl, category_id } = createProductDto;
@@ -83,12 +86,11 @@ export class ProductsDbService {
 
         for (const productData of data) {
             const name:string = productData.category as string;
-            console.log(name);
             
             let category = await this.categoriesRepository.findOne({where: { name }});
-            console.log(category);
-            
-            if (category) {
+            let productName = await this.productDbRepository.findOne({where:{name: productData.name}});            
+
+            if (category && !productName) {
                 const product = this.productDbRepository.create({
                     ...productData,
                     category_id: category,
