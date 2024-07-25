@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Order } from "src/orders/order.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import {v4 as uuid} from 'uuid';
@@ -12,7 +13,7 @@ export class User {
 
     @Column({
         type: "varchar",
-        length: 50,
+        length: 80,
         nullable: false
     })
     name: string;
@@ -27,9 +28,10 @@ export class User {
     
     @Column({
         type: "varchar",
-        length: 20,
+        length: 15,
         nullable: false
     })
+    @Exclude({ toPlainOnly: true })
     password: string;
     
     @Column({
@@ -39,27 +41,21 @@ export class User {
     phone: number;
     
     @Column({
-        type: "int",
-        nullable: true
-    })
-    probandom_igraciones: number;
-    
-    @Column({
         type: "varchar",
-        length: 50,
+        length: 20,
         nullable: true
     })
     country: string;
     
     @Column({
         type: "text",
-        nullable: true
+        nullable: true,
     })
     address: string;
     
     @Column({
         type: "varchar",
-        length: 50,
+        length: 20,
         nullable: true
     })
     city: string;

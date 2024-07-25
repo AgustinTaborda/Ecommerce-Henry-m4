@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, OnModuleInit } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entity/product.entity";
 import { Repository } from "typeorm";
@@ -16,7 +16,11 @@ export class ProductsDbService implements OnModuleInit{
         private categoriesRepository:Repository<Category>
     ) {}
     async onModuleInit() {
-        await this.seedProducts();
+        try {
+            await this.seedProducts();
+        } catch (error) {
+            throw new InternalServerErrorException({message: 'No se pudieron cargar los seeders'})
+        }
     }
 
     async createProduct(createProductDto: createProductDto): Promise<Product> {
@@ -26,6 +30,12 @@ export class ProductsDbService implements OnModuleInit{
         });
         if (!category) {
             throw new NotFoundException('Category not found');
+        }
+
+        const sameProduct = this.productDbRepository.findOne({where:{name}});
+        console.log(sameProduct);
+        if (sameProduct) {
+            throw new BadRequestException(`El producto con el nombre ${name} ya existe`);
         }
 
         const product = this.productDbRepository.create({
@@ -40,8 +50,13 @@ export class ProductsDbService implements OnModuleInit{
         return this.productDbRepository.save(product)
     }
 
-    async getProducts(): Promise<Product[]> {
-        return this.productDbRepository.find({ relations: ['category_id'] });
+    async getProducts(page:number, limit: number): Promise<Product[]> {
+        const startIndex:number = (page - 1) * limit;
+        const endIndex:number = page * limit;
+
+        const response = await this.productDbRepository.find({ relations: ['category_id'] });
+
+        return response.slice(startIndex, endIndex)
     }
 
     async getProductById(id: string): Promise<Product> {
@@ -56,8 +71,10 @@ export class ProductsDbService implements OnModuleInit{
     }
 
     async updateProduct(id: string, updateProductDto: Partial<createProductDto>): Promise<Product> {
-        const product = await this.getProductById(id);
+        const product: Product = await this.getProductById(id);
+
         Object.assign(product, updateProductDto);
+
         return this.productDbRepository.save(product);
     }
 

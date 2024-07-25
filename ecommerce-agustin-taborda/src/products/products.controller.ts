@@ -1,6 +1,4 @@
-import { Controller, Get, Param, Post, Delete, HttpCode, Body, Put, Query, UseGuards, HttpStatus } from "@nestjs/common";
-import { ProductsService } from "./products.service";
-import { Product } from "./product.interface";
+import { Controller, Get, Param, Post, Delete, HttpCode, Body, Put, Query, UseGuards, HttpStatus, ParseUUIDPipe } from "@nestjs/common";
 import { Product as ProductEntity } from "./entity/product.entity";
 import { AuthGuard } from "src/auth/authGuard";
 import { ProductsDbService } from "./productsDB.service";
@@ -9,7 +7,6 @@ import { createProductDto } from "./dto/createProduct.dto";
 @Controller('products')
 export class ProductsController{
     constructor(
-        // private readonly productsService:ProductsService,
         private productsDBService: ProductsDbService
     ){}
 
@@ -22,36 +19,37 @@ export class ProductsController{
     @HttpCode(HttpStatus.CREATED)
     @Post()
     @UseGuards(AuthGuard)
-    createUser(@Body() createDto:createProductDto) {
+    async createUser(@Body() createDto:createProductDto) {
         return this.productsDBService.createProduct(createDto)
     }
 
     @Get()
-    getProducts(
-        @Query('page') page: string = '1', 
-        @Query('limit') limit: string = '5'):Promise<ProductEntity[]> {
-        return this.productsDBService.getProducts()
-        // return this.productsService.GetAllProducts(Number(page), Number(limit));
+    async getProducts(
+        @Query('page') page: number = 1, 
+        @Query('limit') limit: number = 5
+        ):Promise<ProductEntity[]> {
+            console.log(page);
+            console.log(limit);
+            
+        return this.productsDBService.getProducts(page, limit)
     }
 
-    @Get(':id')
-    getUserById(@Param('id') id:string) {        
-        return this.productsDBService.getProductById(id)
+    @Get(':uuid')
+    async getUserById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
+        return this.productsDBService.getProductById(uuid)
     }
     
-    @Put(':id')
+    @Put(':uuid')
     @UseGuards(AuthGuard)
-    updateUser(
-        @Param('id') id:string, 
+    async updateUser(
+        @Param('uuid', ParseUUIDPipe) uuid:string, 
         @Body() updateProductDto:createProductDto) {
-        // return this.productsService.updateProduct(id, updateProductDto)
-        return this.productsDBService.updateProduct( id, updateProductDto )
+        return this.productsDBService.updateProduct( uuid, updateProductDto )
     }
 
-    @Delete(':id')
+    @Delete(':uuid')
     @UseGuards(AuthGuard)
-    deleteUser(@Param('id') id:string) {
-        // return this.productsService.deleteProduct(id)
-        return this.productsDBService.deleteProduct(id)
+    deleteUser(@Param('uuid', ParseUUIDPipe) uuid:string) {
+        return this.productsDBService.deleteProduct(uuid)
     }
 }

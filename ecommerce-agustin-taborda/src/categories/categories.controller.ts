@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { CategoriesService } from "./categories.service";
-import { Category } from "./category.entity";
 import { addCategoryDto } from "./dto/addCategory.dto";
 
 @Controller('categories')

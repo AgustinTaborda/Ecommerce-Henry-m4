@@ -1,35 +1,37 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-// import { UsersRepository } from "./users.repository";
-// import { User } from "./users.interface";
 import {User as UserEntity} from './entities/users.entity'
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { createUserDto } from "./dto/createUserDto";
+import { classToPlain } from "class-transformer";
 
 @Injectable()
 export class UsersService{
     constructor (
-        // private readonly usersRepository:UsersRepository,
         @InjectRepository(UserEntity) 
         private usersDBRepository:Repository<UserEntity>
     ){}
     
-    async getUsers(): Promise<UserEntity[]> {
-        return this.usersDBRepository.find({
+    async getUsers(): Promise<Partial<UserEntity>[]> {
+        const response = this.usersDBRepository.find({
             relations: ['orders_id']
         });
+
+        return classToPlain(response) as Partial<UserEntity>[];
     }
 
-    async getUserById(id: string): Promise<UserEntity> {
+    async getUserById(id: string): Promise<Partial<UserEntity>> {
         const user:UserEntity = await this.usersDBRepository.findOne({where:{id}});
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
         }
-        return user;
+        return classToPlain(user);
     }
 
-    async createUser(createDto: Omit<UserEntity, "id">): Promise<UserEntity> {
+    async createUser(createDto: createUserDto): Promise<Partial<UserEntity>> {
         const newUser = this.usersDBRepository.create(createDto);
-        return this.usersDBRepository.save(newUser);
+        const repsonse = this.usersDBRepository.save(newUser);
+        return classToPlain(repsonse)
     }
 
     async updateUser(id: string, updateDto: Omit<UserEntity, 'id'>): Promise<UserEntity> {
@@ -39,8 +41,8 @@ export class UsersService{
         return this.usersDBRepository.save(user);
     }
 
-    async deleteUser(id: string): Promise<void> {
-        const user = await this.getUserById(id); 
+    async deleteUser(uuid: string): Promise<void> {
+        const user: UserEntity = await this.usersDBRepository.findOne({where:{id:uuid}}) 
 
         await this.usersDBRepository.remove(user);
     }

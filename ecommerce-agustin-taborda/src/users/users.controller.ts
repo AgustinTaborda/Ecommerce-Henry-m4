@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import { User } from "./users.interface";
 import {User as UserEntity} from './entities/users.entity'
 import { AuthGuard } from "src/auth/authGuard";
+import { createUserDto } from "./dto/createUserDto";
 
 @Controller('users')
 export class UserController{
@@ -16,27 +16,29 @@ export class UserController{
         return this.usersService.getUsers()
     }
     
-    @Get(':id')
+    @Get(':uuid')
     @UseGuards(AuthGuard)
-    getUserById(@Param('id') id:string) {        
-        return this.usersService.getUserById(id)
+    getUserById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
+        return this.usersService.getUserById(uuid)
     }
     
     @HttpCode(HttpStatus.CREATED)
     @Post()
-    createUser(@Body() createDto:Omit<UserEntity, 'id'>) {
+    createUser(@Body() createDto:createUserDto) {
         return this.usersService.createUser(createDto);
     }
     
-    @Put(':id')
+    @Put(':uuid')
     @UseGuards(AuthGuard)
-    updateUser(@Param('id') id:string, @Body() updateDto:Omit<UserEntity, 'id'>) {
+    updateUser(
+        @Param('uuid', ParseUUIDPipe) id:string, 
+        @Body() updateDto:Omit<UserEntity, 'id'>) {
         return this.usersService.updateUser(id, updateDto)
     }
 
-    @Delete(':id')
+    @Delete(':uuid')
     @UseGuards(AuthGuard)
-    deleteUser(@Param('id') id:string) {
-        return this.usersService.deleteUser(id)
+    deleteUser(@Param('uuid', ParseUUIDPipe) uuid:string) {
+        return this.usersService.deleteUser(uuid)
     }
 }

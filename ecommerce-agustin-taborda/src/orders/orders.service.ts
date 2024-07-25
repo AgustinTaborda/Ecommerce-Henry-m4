@@ -90,6 +90,10 @@ export class OrdersService {
             }
         });
 
+        if (!results) {
+            throw new NotFoundException('Order not found')
+        }
+
         return results
     }    
 }
