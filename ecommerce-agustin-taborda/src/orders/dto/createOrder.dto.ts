@@ -1,7 +1,5 @@
-import { Type } from "class-transformer"
-import { ArrayMinSize, IsNotEmpty, IsString, IsUUID, Length, ValidateNested } from "class-validator"
+import { ArrayMinSize, IsNotEmpty, IsUUID } from "class-validator"
 import { Product } from "src/products/entity/product.entity"
-import { UUID } from "typeorm/driver/mongodb/bson.typings"
 
 export class CreateOrderDto {
     @IsUUID()

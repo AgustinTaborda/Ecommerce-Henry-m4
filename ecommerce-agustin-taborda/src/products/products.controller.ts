@@ -28,9 +28,6 @@ export class ProductsController{
         @Query('page') page: number = 1, 
         @Query('limit') limit: number = 5
         ):Promise<ProductEntity[]> {
-            console.log(page);
-            console.log(limit);
-            
         return this.productsDBService.getProducts(page, limit)
     }
 
@@ -43,7 +40,8 @@ export class ProductsController{
     @UseGuards(AuthGuard)
     async updateUser(
         @Param('uuid', ParseUUIDPipe) uuid:string, 
-        @Body() updateProductDto:createProductDto) {
+        @Body() updateProductDto:createProductDto
+        ) {
         return this.productsDBService.updateProduct( uuid, updateProductDto )
     }
 

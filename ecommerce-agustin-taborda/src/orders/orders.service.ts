@@ -81,7 +81,7 @@ export class OrdersService {
 
     async getOrder(orderId:string) {
         const results = await this.ordersRepository.findOne({
-            where:{id:orderId},
+            where:{ id: orderId },
             relations: {
                 user_id: true,
                 orderDetails_id: {

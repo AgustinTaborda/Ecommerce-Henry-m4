@@ -37,12 +37,11 @@ export class CategoriesService {
             for (const categoryName of categories) {
                 let name:string = categoryName as string;
                 let category = await this.categoriesRepository.findOne({where: { name }});
-                console.log(category);
                 
                 if (!category) {
                     category = this.categoriesRepository.create({ name });
                     await this.categoriesRepository.save(category);
                 }
             }
-            }
+        }
 }

@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import typeormConfig from './config/typeormConfig';
 import { CategoriesModule } from './categories/categories.module';
 import { OrdersModule } from './orders/orders.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { OrdersModule } from './orders/orders.module';
     AuthModule, 
     ProductsModule,
     OrdersModule,
-    CategoriesModule
+    CategoriesModule,
+    CloudinaryModule
   ],
   controllers: [],
   providers: [],
