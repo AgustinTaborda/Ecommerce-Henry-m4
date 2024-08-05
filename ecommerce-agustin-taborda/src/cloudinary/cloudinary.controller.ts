@@ -1,18 +1,20 @@
-import { Controller, Param, ParseUUIDPipe, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Controller, Param, ParseUUIDPipe, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CloudinaryService } from "./cloudinary.service";
 import { UploadImageValidationPipe } from "src/pipes/uploadImageValidator.pipe";
+import { AuthGuard } from "src/auth/authGuard";
 
 @Controller('files') 
 export class CloudinaryController {
     constructor(private readonly cloudinaryService:CloudinaryService){}
 
-    @Post('uploadImage/:uuid')
+    @Post('uploadImage/:productId')
+    @UseGuards(AuthGuard)
     @UseInterceptors(FileInterceptor('image'))
     async uploadImage(
         @UploadedFile(UploadImageValidationPipe) file: Express.Multer.File,
-        @Param('uuid', ParseUUIDPipe) uuid: string
+        @Param('productId', ParseUUIDPipe) productId: string
     ) {
-        return await this.cloudinaryService.uploadImage(uuid, file);
+        return await this.cloudinaryService.uploadImage(productId, file);
     }
 }

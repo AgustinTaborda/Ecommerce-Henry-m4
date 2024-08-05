@@ -17,7 +17,7 @@ export class createUserDto {
         message: 'Password too weak',
     })
     password: string;
-
+    
     @IsNumber()
     @IsNotEmpty()
     phone: number;

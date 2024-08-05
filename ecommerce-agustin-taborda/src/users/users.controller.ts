@@ -22,12 +22,6 @@ export class UserController{
         return this.usersService.getUserById(uuid)
     }
     
-    @HttpCode(HttpStatus.CREATED)
-    @Post()
-    createUser(@Body() createDto:createUserDto) {
-        return this.usersService.createUser(createDto);
-    }
-    
     @Put(':uuid')
     @UseGuards(AuthGuard)
     updateUser(

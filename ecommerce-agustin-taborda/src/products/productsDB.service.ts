@@ -32,8 +32,7 @@ export class ProductsDbService implements OnModuleInit{
             throw new NotFoundException('Category not found');
         }
 
-        const sameProduct = this.productDbRepository.findOne({where:{name}});
-        console.log(sameProduct);
+        const sameProduct = await this.productDbRepository.findOne({where:{name}});
         if (sameProduct) {
             throw new BadRequestException(`El producto con el nombre ${name} ya existe`);
         }

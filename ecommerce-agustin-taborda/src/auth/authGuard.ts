@@ -1,33 +1,37 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { Observable } from "rxjs";
 
 @Injectable()
 export class AuthGuard implements CanActivate{
-    canActivate(
+
+    constructor(
+        private readonly jwtService:JwtService
+    ) {}
+    
+    async canActivate(
             context: ExecutionContext
-        ): boolean | Promise<boolean> | Observable<boolean> {
+        ): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const authHeader = request.headers['authorization'];
+        const token = request.header('authorization')?.split(' ')[1] ?? '';        
         
-        if (!authHeader) {
+        if (!token) {
             throw new UnauthorizedException('Authorization header is missing');
         }
 
-        const [authType, authValue] = authHeader.split(' ');
+        try {
+            const secret = process.env.JWT_SECRET;
+            
+            const payload = await this.jwtService.verifyAsync(token, { secret });            
 
-        if (authType !== 'Basic' || !authValue) {
-            throw new UnauthorizedException('Invalid authorization format');
+            payload.roles = ['Admin'];
+            payload.iat = new Date(payload.iat * 1000);
+            payload.exp = new Date(payload.exp * 1000);
+            request.user = payload;
+            return true
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token')
         }
-
-        const decodedValue = Buffer.from(authValue, 'base64').toString("utf-8");
-        const [email, password] = decodedValue.split(':');
-
-        if (!email || !password) {
-            throw new UnauthorizedException('Authorization header must contain email and password');
-        };
-
-        request.user = { email, password };
-        return true
     }
 
 }

@@ -18,8 +18,8 @@ export class ProductsController{
     
     @HttpCode(HttpStatus.CREATED)
     @Post()
-    @UseGuards(AuthGuard)
-    async createUser(@Body() createDto:createProductDto) {
+    // @UseGuards(AuthGuard)
+    async createProduct(@Body() createDto:createProductDto) {
         return this.productsDBService.createProduct(createDto)
     }
 
@@ -32,13 +32,13 @@ export class ProductsController{
     }
 
     @Get(':uuid')
-    async getUserById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
+    async getProductById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
         return this.productsDBService.getProductById(uuid)
     }
     
     @Put(':uuid')
     @UseGuards(AuthGuard)
-    async updateUser(
+    async updateProduct(
         @Param('uuid', ParseUUIDPipe) uuid:string, 
         @Body() updateProductDto:createProductDto
         ) {
@@ -46,8 +46,8 @@ export class ProductsController{
     }
 
     @Delete(':uuid')
-    @UseGuards(AuthGuard)
-    deleteUser(@Param('uuid', ParseUUIDPipe) uuid:string) {
+    // @UseGuards(AuthGuard)
+    deleteProduct(@Param('uuid', ParseUUIDPipe) uuid:string) {
         return this.productsDBService.deleteProduct(uuid)
     }
 }

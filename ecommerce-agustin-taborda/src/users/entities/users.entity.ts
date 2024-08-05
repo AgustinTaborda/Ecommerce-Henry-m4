@@ -27,11 +27,11 @@ export class User {
     email: string;
     
     @Column({
-        type: "varchar",
-        length: 15,
-        nullable: false
+        // type: "varchar",
+        // length: 15,
+        // nullable: false
     })
-    @Exclude({ toPlainOnly: true })
+    // @Exclude({ toPlainOnly: true })
     password: string;
     
     @Column({

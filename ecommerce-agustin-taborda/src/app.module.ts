@@ -8,6 +8,7 @@ import typeormConfig from './config/typeormConfig';
 import { CategoriesModule } from './categories/categories.module';
 import { OrdersModule } from './orders/orders.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -24,7 +25,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ProductsModule,
     OrdersModule,
     CategoriesModule,
-    CloudinaryModule
+    CloudinaryModule,
+    JwtModule.register({
+      global: true,
+      signOptions: { expiresIn: '1h'},
+      secret: process.env.JWT_SECRET
+    })
   ],
   controllers: [],
   providers: [],
