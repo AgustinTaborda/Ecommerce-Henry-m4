@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { Observable } from "rxjs";
 
 @Injectable()
 export class AuthGuard implements CanActivate{
@@ -19,12 +18,12 @@ export class AuthGuard implements CanActivate{
             throw new UnauthorizedException('Authorization header is missing');
         }
 
-        try {
-            const secret = process.env.JWT_SECRET;
-            
-            const payload = await this.jwtService.verifyAsync(token, { secret });            
+        try {            
+            const payload = await this.jwtService.verifyAsync(token, { 
+                secret: process.env.JWT_SECRET
+            });            
 
-            payload.roles = ['Admin'];
+            // payload.roles = ['Admin'];
             payload.iat = new Date(payload.iat * 1000);
             payload.exp = new Date(payload.exp * 1000);
             request.user = payload;

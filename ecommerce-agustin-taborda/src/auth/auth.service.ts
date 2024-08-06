@@ -5,6 +5,7 @@ import { User } from "src/users/entities/users.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { JwtService } from "@nestjs/jwt";
+import { Role } from "./roles.enum";
 
 @Injectable()
 export class AuthService{
@@ -50,8 +51,9 @@ export class AuthService{
         const userPayload = {
             sub: user.id,
             id: user.id,
-            email: user.email
-        };
+            email: user.email,
+            role: [user.isAdmin ? Role.Admin : Role.User]
+        };        
 
         const token = this.jwtService.sign(userPayload)
 

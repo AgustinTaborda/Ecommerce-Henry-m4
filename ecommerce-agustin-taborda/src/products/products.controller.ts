@@ -3,6 +3,9 @@ import { Product as ProductEntity } from "./entity/product.entity";
 import { AuthGuard } from "src/auth/authGuard";
 import { ProductsDbService } from "./productsDB.service";
 import { createProductDto } from "./dto/createProduct.dto";
+import { RolesGuard } from "src/auth/roles.guard";
+import { Roles } from "src/decorators/roles.decorator";
+import { Role } from "src/auth/roles.enum";
 
 @Controller('products')
 export class ProductsController{
@@ -18,7 +21,6 @@ export class ProductsController{
     
     @HttpCode(HttpStatus.CREATED)
     @Post()
-    // @UseGuards(AuthGuard)
     async createProduct(@Body() createDto:createProductDto) {
         return this.productsDBService.createProduct(createDto)
     }
@@ -37,7 +39,8 @@ export class ProductsController{
     }
     
     @Put(':uuid')
-    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
     async updateProduct(
         @Param('uuid', ParseUUIDPipe) uuid:string, 
         @Body() updateProductDto:createProductDto

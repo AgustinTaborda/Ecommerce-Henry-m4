@@ -3,6 +3,9 @@ import { UsersService } from "./users.service";
 import {User as UserEntity} from './entities/users.entity'
 import { AuthGuard } from "src/auth/authGuard";
 import { createUserDto } from "./dto/createUserDto";
+import { Roles } from "src/decorators/roles.decorator";
+import { Role } from "src/auth/roles.enum";
+import { RolesGuard } from "src/auth/roles.guard";
 
 @Controller('users')
 export class UserController{
@@ -11,7 +14,8 @@ export class UserController{
     ) {}
 
     @Get()
-    @UseGuards(AuthGuard)
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
     getUsers() {
         return this.usersService.getUsers()
     }

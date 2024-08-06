@@ -18,6 +18,9 @@ export class User {
     })
     name: string;
 
+    @Column({default: false})
+    isAdmin: boolean;
+
     @Column({
         type: "varchar",
         length: 50,

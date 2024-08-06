@@ -16,7 +16,7 @@ export class AuthController{
         const {password, passwordConfirmation, ...userDtoWithoutPassword} = createUserDto;
 
         if (password !== passwordConfirmation) {
-            throw new BadRequestException('Las contraseñas no coinciden')
+            throw new BadRequestException('Password do not match')
         }
         return this.authService.authSignUp({password, ...userDtoWithoutPassword})
     }
