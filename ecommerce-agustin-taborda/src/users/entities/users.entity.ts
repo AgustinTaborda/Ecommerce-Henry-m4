@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import { Order } from "src/orders/order.entity";
+import { Order } from "../../orders/order.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import {v4 as uuid} from 'uuid';
 

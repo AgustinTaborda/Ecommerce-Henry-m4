@@ -1,11 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import {User as UserEntity} from './entities/users.entity'
-import { AuthGuard } from "src/auth/authGuard";
-import { createUserDto } from "./dto/createUserDto";
-import { Roles } from "src/decorators/roles.decorator";
-import { Role } from "src/auth/roles.enum";
-import { RolesGuard } from "src/auth/roles.guard";
+import { AuthGuard } from "../auth/authGuard";
+import { Roles } from "../decorators/roles.decorator";
+import { Role } from "../auth/roles.enum";
+import { RolesGuard } from "../auth/roles.guard";
 
 @Controller('users')
 export class UserController{
@@ -16,19 +15,24 @@ export class UserController{
     @Get()
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
-    getUsers() {
+    async getUsers() {
         return this.usersService.getUsers()
     }
     
     @Get(':uuid')
     @UseGuards(AuthGuard)
-    getUserById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
-        return this.usersService.getUserById(uuid)
+    async getUserById(@Param('uuid', ParseUUIDPipe) uuid:string) {        
+        const response = await this.usersService.getUserById(uuid);
+        
+        if (!response) {
+            throw new BadRequestException('User not found')
+        };
+        return response;
     }
     
     @Put(':uuid')
     @UseGuards(AuthGuard)
-    updateUser(
+    async updateUser(
         @Param('uuid', ParseUUIDPipe) id:string, 
         @Body() updateDto:Omit<UserEntity, 'id'>) {
         return this.usersService.updateUser(id, updateDto)
@@ -36,7 +40,7 @@ export class UserController{
 
     @Delete(':uuid')
     @UseGuards(AuthGuard)
-    deleteUser(@Param('uuid', ParseUUIDPipe) uuid:string) {
+    async deleteUser(@Param('uuid', ParseUUIDPipe) uuid:string) {
         return this.usersService.deleteUser(uuid)
     }
 }

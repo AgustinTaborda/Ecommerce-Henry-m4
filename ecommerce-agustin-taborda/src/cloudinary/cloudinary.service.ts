@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CloudinaryRepository } from "./cloudinary.repository";
-import { Product } from "src/products/entity/product.entity";
+import { Product } from "../products/entity/product.entity";
 import { Repository } from "typeorm";
-import { ProductsDbService } from "src/products/productsDB.service";
+import { ProductsDbService } from "../products/productsDB.service";
 
 @Injectable()
 export class CloudinaryService {

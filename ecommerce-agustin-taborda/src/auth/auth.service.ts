@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { createUserDto } from "src/users/dto/createUserDto";
-import { User } from "src/users/entities/users.entity";
+import { createUserDto } from "../users/dto/createUserDto";
+import { User } from "../users/entities/users.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { JwtService } from "@nestjs/jwt";
@@ -57,7 +57,7 @@ export class AuthService{
 
         const token = this.jwtService.sign(userPayload)
 
-        return {success: 'User logged succesfully', token}
+        return {success: 'User logged in succesfully', token}
     }
         
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, UseGuards } from "@nestjs/common";
 import { OrdersService } from "./orders.service";
 import { CreateOrderDto } from "./dto/createOrder.dto";
-import { AuthGuard } from "src/auth/authGuard";
+import { AuthGuard } from "../auth/authGuard";
 
 @Controller('orders')
 export class OrdersController {

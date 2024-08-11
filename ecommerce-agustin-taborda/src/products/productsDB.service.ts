@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entity/product.entity";
 import { Repository } from "typeorm";
 import { createProductDto } from "./dto/createProduct.dto";
-import { Category } from "src/categories/category.entity";
+import { Category } from "../categories/category.entity";
 import * as path from 'path';
 
 
