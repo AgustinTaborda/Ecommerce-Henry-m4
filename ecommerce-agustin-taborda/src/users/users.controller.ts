@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Put, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import {User as UserEntity} from './entities/users.entity'
 import { AuthGuard } from "../auth/authGuard";
@@ -15,6 +15,7 @@ export class UserController{
     @Get()
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
+    @UseGuards(AuthGuard)
     async getUsers() {
         return this.usersService.getUsers()
     }
@@ -25,7 +26,7 @@ export class UserController{
         const response = await this.usersService.getUserById(uuid);
         
         if (!response) {
-            throw new BadRequestException('User not found')
+            throw new NotFoundException('User not found')
         };
         return response;
     }
