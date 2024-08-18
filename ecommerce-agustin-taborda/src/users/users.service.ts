@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import {User as UserEntity} from './entities/users.entity'
+import {User, User as UserEntity} from './entities/users.entity'
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { createUserDto } from "./dto/createUserDto";
 import { classToPlain } from "class-transformer";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService{
@@ -28,25 +29,51 @@ export class UsersService{
         return classToPlain(user);
     }
 
-    async createUser(createDto: createUserDto): Promise<Partial<UserEntity>> {
-        const newUser = this.usersDBRepository.create(createDto);
-        const repsonse = this.usersDBRepository.save(newUser);
-        return classToPlain(repsonse)
-    }
-
-    async updateUser(id: string, updateDto: Omit<UserEntity, 'id'>): Promise<UserEntity> {
-        const user = await this.getUserById(id); 
-
-        Object.assign(user, updateDto);
-        return this.usersDBRepository.save(user);
-    }
-
-    async deleteUser(uuid: string): Promise<void> {
-        const user: UserEntity = await this.usersDBRepository.findOne({where:{id:uuid}}) 
-        if (!user) {
-            throw new BadRequestException('User not found')
+    async createUser(createDto: createUserDto): Promise<UserEntity> {
+        const user: User = await this.usersDBRepository.findOne({where: {email: createDto.email}});
+        if (user) {
+            throw new BadRequestException('Email already in use')
         }
         
-        await this.usersDBRepository.remove(user);
+        const hashedPassword:string = await bcrypt.hash(createDto.password, 10);            
+        if (!hashedPassword) {
+            throw new BadRequestException('Password could not be hashed')
+        }
+        
+        const dbUser = await this.usersDBRepository.save({...createDto, password: hashedPassword});
+        if (!dbUser) {
+            throw new BadRequestException('User could not be register correctly');
+        }
+        
+        return dbUser
+    }
+
+    async updateUser(id: string, updateDto: createUserDto): Promise<UserEntity> {
+        const user = await this.getUserById(id); 
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        const { password, ...userWithoutPassword } = updateDto;
+
+        let hashedPassword: string;
+        if (password) {
+            hashedPassword = await bcrypt.hash(password, 10);
+        }
+
+        const updatedUser = {password: hashedPassword, ...userWithoutPassword}
+        
+        Object.assign(user, updatedUser);
+        return await this.usersDBRepository.save(user);
+    }
+
+    async deleteUser(uuid: string): Promise<string> {
+        const user: UserEntity = await this.usersDBRepository.findOne({where:{id:uuid}}) 
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+        const result = await this.usersDBRepository.delete(user);
+        if (result.affected === 1) {
+            return `User ${uuid} was removed from the database`
+        }
     }
 }

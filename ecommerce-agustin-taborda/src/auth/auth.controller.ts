@@ -1,22 +1,27 @@
-import { BadRequestException, Body, Controller, Get, Headers, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { AuthGuard } from "./authGuard";
-import { Request } from "express";
-import { createUserDto } from "src/users/dto/createUserDto";
 import { CredentialsDto } from "./dto/credentials.dto";
+import { ApiBody, ApiTags } from "@nestjs/swagger";
+import { CreateUserWithConfirmationDto } from "./dto/createUserWithConfirmation.dto";
+
+@ApiTags('Authorization')
 @Controller('auth')
 export class AuthController{
     constructor(
         private readonly authService:AuthService,
     ) {}
 
+    @ApiBody({
+        description: 'Ingresar los datos del nuevo usuario',
+        type: CreateUserWithConfirmationDto
+    })
     @HttpCode(HttpStatus.CREATED)
     @Post('signup')
-    authSignUp(@Body() createUserDto:createUserDto & {passwordConfirmation:string}) {
-        const {password, passwordConfirmation, ...userDtoWithoutPassword} = createUserDto;
-
+    authSignUp(@Body() createUser:CreateUserWithConfirmationDto) {
+        const {password, passwordConfirmation, ...userDtoWithoutPassword} = createUser;
+        
         if (password !== passwordConfirmation) {
-            throw new BadRequestException('Password do not match')
+            throw new BadRequestException('Password do not match');
         }
         return this.authService.authSignUp({password, ...userDtoWithoutPassword})
     }

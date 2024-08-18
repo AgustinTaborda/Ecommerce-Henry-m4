@@ -77,11 +77,12 @@ export class ProductsDbService implements OnModuleInit{
         return this.productDbRepository.save(product);
     }
 
-    async deleteProduct(id: string): Promise<void> {
+    async deleteProduct(id: string): Promise<string> {
         const result = await this.productDbRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException('Product not found');
         }
+        return 'Product correctly removed from datebase'
     }
 
     async seedProducts(): Promise<void> {

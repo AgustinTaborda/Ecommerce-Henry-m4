@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { createUserDto } from "../users/dto/createUserDto";
 import { User } from "../users/entities/users.entity";
@@ -6,33 +6,21 @@ import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { JwtService } from "@nestjs/jwt";
 import { Role } from "./roles.enum";
+import { UsersService } from "src/users/users.service";
 
 @Injectable()
 export class AuthService{
     constructor (
         @InjectRepository(User) private userRepository: Repository<User>,
+        // crear userrepository para resolver todo este embrollo, por ahora voy a usar el service
+        private readonly usersService:UsersService,
         private readonly jwtService: JwtService
     ) {}
         
     async authSignUp(createUserDto:createUserDto) {
-        const user: User = await this.userRepository.findOne({where: {email: createUserDto.email}});
-        if (user) {
-            throw new BadRequestException('Email already in use')
-        }
-        
-        const hashedPassword:string = await bcrypt.hash(createUserDto.password, 10);            
-        if (!hashedPassword) {
-            throw new BadRequestException('Password could not be hashed')
-        }
-        
-        const dbUser = await this.userRepository.save({...createUserDto, password: hashedPassword});
-        if (!dbUser) {
-            throw new BadRequestException('User could not be register correctly')
-        }
-
-        const {password, ...DbUserWithoutPassword} = dbUser;
-        
-        return DbUserWithoutPassword
+        const newUser = await this.usersService.createUser(createUserDto);
+        const { password, ...user} = newUser;
+        return user;
     }
 
     async authSignIn(email:string, password:string) {

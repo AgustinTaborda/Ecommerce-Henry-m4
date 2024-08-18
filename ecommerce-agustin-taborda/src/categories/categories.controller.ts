@@ -1,7 +1,9 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, Query } from "@nestjs/common";
 import { CategoriesService } from "./categories.service";
 import { addCategoryDto } from "./dto/addCategory.dto";
+import { ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
     constructor (private categoriesService:CategoriesService) {}
@@ -13,13 +15,26 @@ export class CategoriesController {
     }
     
     @Get()
-    getCategories() {
+    async getCategories() {
         return this.categoriesService.getCategories()
     }
 
     @HttpCode(HttpStatus.CREATED)
     @Post()
-    addCategories( @Body() category:addCategoryDto) {
+    async addCategories( @Body() category: addCategoryDto) {
         return this.categoriesService.addCategory(category)
+    }
+
+    @Put(':id')
+    async updateCategory(
+        @Body() categoryDto: addCategoryDto,
+        @Query('id')  categoryId:string
+        ) {
+        return this.categoriesService.updateCategory(categoryId, categoryDto)
+    }
+
+    @Delete(':id')
+    async deleteCategory(@Query('id')  categoryId:string) {
+        return this.categoriesService.deleteCategory(categoryId)
     }
 }

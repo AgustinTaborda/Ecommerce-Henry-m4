@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadGatewayException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./order.entity";
 import { In, Repository } from "typeorm";
@@ -30,35 +30,35 @@ export class OrdersService {
         }
 
         // Obtener productos por sus IDs
-        const productIds = products.map( product => product.id);
-        const productEntities = await this.productRepository.findBy({id:In(productIds)});
+        const productIds: string[] = products.map( product => product.id);
+        
+        const productEntities: Product[] = await this.productRepository.findBy({id:In(productIds)});
         if (productEntities.length !== productIds.length) {
             throw new NotFoundException('One or more products not found');
         }
 
         // Verificar que todos los productos tienen stock suficiente
-        const insufficientStock = productEntities.some(product => product.stock <= 0);
+        const insufficientStock: boolean = productEntities.some(product => product.stock <= 0);
         if (insufficientStock) {
             throw new NotFoundException('One or more products are out of stock.');
         };
 
         // Calcular el precio total
         const calculateTotalPrice = (products: Product[]): number => {
-            let total = 0;
+            let total: number = 0;
             for (const product of products) {                
                 total += Number(product.price);
             }
             return total; 
         }
 
-        // Crear OrderDetails
+        // Crear y guardar OrderDetails
         const orderDetails:OrderDetails = this.orderDetailsRepository.create({
             products_id: productEntities,
             price: calculateTotalPrice(productEntities), 
         });        
-
-        // Guardar OrderDetails
-        const savedOrderDetails:OrderDetails = await this.orderDetailsRepository.save(orderDetails);
+        
+        const savedOrderDetails:OrderDetails = await this.orderDetailsRepository.save(orderDetails);   
 
         // Crear nueva orden
         const newOrder = this.ordersRepository.create({
@@ -78,6 +78,7 @@ export class OrdersService {
 
         return newOrder;
     }
+    
 
     async getOrder(orderId:string) {
         const results = await this.ordersRepository.findOne({

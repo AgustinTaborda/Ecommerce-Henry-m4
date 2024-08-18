@@ -6,8 +6,6 @@ import { Product } from "./entity/product.entity";
 import { JwtService } from "@nestjs/jwt";
 import { ProductsDbService } from "./productsDB.service";
 import { createProductDto } from "./dto/createProduct.dto";
-import { addCategoryDto } from "../categories/dto/addCategory.dto";
-import e from "express";
 import { HttpStatus } from "@nestjs/common";
 
 describe('ProductsService', () => {

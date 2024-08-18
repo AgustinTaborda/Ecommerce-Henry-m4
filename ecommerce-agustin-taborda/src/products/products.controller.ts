@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Delete, HttpCode, Body, Put, Query, UseGuards, HttpStatus, ParseUUIDPipe } from "@nestjs/common";
+import { Controller, Get, Param, Post, Delete, HttpCode, Body, Put, Query, UseGuards, HttpStatus, ParseUUIDPipe, ParseIntPipe } from "@nestjs/common";
 import { Product as ProductEntity } from "./entity/product.entity";
 import { AuthGuard } from "../auth/authGuard";
 import { ProductsDbService } from "./productsDB.service";
@@ -6,7 +6,9 @@ import { createProductDto } from "./dto/createProduct.dto";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../decorators/roles.decorator";
 import { Role } from "../auth/roles.enum";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Products')
 @Controller('products')
 export class ProductsController{
     constructor(
@@ -25,10 +27,12 @@ export class ProductsController{
         return this.productsDBService.createProduct(createDto)
     }
 
+    @ApiQuery({ name: 'page', required: false, description: 'Número de la página', example: 1 })
+    @ApiQuery({ name: 'limit', required: false, description: 'Cantidad de productos por página', example: 5})
     @Get()
     async getProducts(
-        @Query('page') page: number = 1, 
-        @Query('limit') limit: number = 5
+        @Query('page', ParseIntPipe) page: number = 1, 
+        @Query('limit', ParseIntPipe) limit: number = 5
         ):Promise<ProductEntity[]> {
         return this.productsDBService.getProducts(page, limit)
     }
@@ -38,6 +42,7 @@ export class ProductsController{
         return this.productsDBService.getProductById(uuid)
     }
     
+    @ApiBearerAuth()
     @Put(':uuid')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
@@ -48,8 +53,9 @@ export class ProductsController{
         return this.productsDBService.updateProduct( uuid, updateProductDto )
     }
 
+    @ApiBearerAuth()
     @Delete(':uuid')
-    // @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard)
     deleteProduct(@Param('uuid', ParseUUIDPipe) uuid:string) {
         return this.productsDBService.deleteProduct(uuid)
     }
