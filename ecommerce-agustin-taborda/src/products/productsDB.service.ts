@@ -20,7 +20,6 @@ export class ProductsDbService implements OnModuleInit{
             await this.seedProducts();
         } catch (error) {
             console.log(error);
-            
             throw new InternalServerErrorException({message: 'No se pudieron cargar los seeders'})
         }
     }

@@ -7,6 +7,7 @@ import { Role } from "../auth/roles.enum";
 import { RolesGuard } from "../auth/roles.guard";
 import { ApiBearerAuth, ApiBody, ApiTags } from "@nestjs/swagger";
 import { createUserDto } from "./dto/createUserDto";
+import { CreateAdminUserDto } from "./dto/createAdminUser.dto";
 
 @ApiTags('Users')
 @Controller('users')
@@ -58,6 +59,19 @@ export class UserController{
     async createUser(
         @Body() updateDto: createUserDto) { 
         const savedUser = await this.usersService.createUser(updateDto);
+        console.log(savedUser);
+        
+        const { password, ...userWithoutPasswordResponse } = savedUser;
+        return userWithoutPasswordResponse;
+    }
+    
+    @ApiBody({
+        description: 'Ingresar la información del usuario administrador',
+        type: CreateAdminUserDto})
+    @Post('/admin')
+    async createAdminUser(
+        @Body() updateDto: CreateAdminUserDto) { 
+        const savedUser = await this.usersService.createAdminUser(updateDto);
         console.log(savedUser);
         
         const { password, ...userWithoutPasswordResponse } = savedUser;

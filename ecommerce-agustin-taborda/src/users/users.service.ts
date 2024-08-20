@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { createUserDto } from "./dto/createUserDto";
 import { classToPlain } from "class-transformer";
 import * as bcrypt from 'bcrypt';
+import { CreateAdminUserDto } from "./dto/createAdminUser.dto";
 
 @Injectable()
 export class UsersService{
@@ -41,6 +42,25 @@ export class UsersService{
         }
         
         const dbUser = await this.usersDBRepository.save({...createDto, password: hashedPassword});
+        if (!dbUser) {
+            throw new BadRequestException('User could not be register correctly');
+        }
+        
+        return dbUser
+    }
+    
+    async createAdminUser(createAdminDto: CreateAdminUserDto): Promise<UserEntity> {
+        const user: User = await this.usersDBRepository.findOne({where: {email: createAdminDto.email}});
+        if (user) {
+            throw new BadRequestException('Email already in use')
+        }
+        
+        const hashedPassword:string = await bcrypt.hash(createAdminDto.password, 10);            
+        if (!hashedPassword) {
+            throw new BadRequestException('Password could not be hashed')
+        }
+        
+        const dbUser = await this.usersDBRepository.save({...createAdminDto, password: hashedPassword});
         if (!dbUser) {
             throw new BadRequestException('User could not be register correctly');
         }
