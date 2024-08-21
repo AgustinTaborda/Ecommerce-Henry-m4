@@ -1,15 +1,3 @@
-# FROM node:18-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# RUN npm cache clean --force
-# RUN npm rebuild bcrypt --build-from-source
-# EXPOSE 3000
-# CMD [ "npm", "run", "start" ]
-
-
-
 FROM node:18-alpine AS development
 WORKDIR /usr/src/app
 COPY package*.json ./
