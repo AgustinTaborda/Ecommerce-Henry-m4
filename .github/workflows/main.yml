@@ -27,4 +27,4 @@ jobs:
         contex: .
         file: ./Dockerfile
         push: true
-        tag: ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce-m4:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce-m4:latest
