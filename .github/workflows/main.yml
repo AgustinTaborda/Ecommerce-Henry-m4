@@ -25,6 +25,6 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         contex: .
-        file: ./Dockerfile
+        file: ./ecommerce-agustin-taborda/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce-m4:latest
