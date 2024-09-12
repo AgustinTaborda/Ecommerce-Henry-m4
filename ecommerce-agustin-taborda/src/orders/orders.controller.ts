@@ -21,6 +21,14 @@ export class OrdersController {
         return this.ordersService.addOrder(createOrderDto)
     }
     
+    
+    @ApiBearerAuth()
+    @Get('allOrders')
+    @UseGuards(AuthGuard)
+    async getAllOrders() {
+        return this.ordersService.getAllOrders()
+    }
+   
     @ApiBearerAuth()
     @Get(':uuid')
     @UseGuards(AuthGuard)

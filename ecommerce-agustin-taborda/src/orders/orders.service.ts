@@ -18,83 +18,89 @@ export class OrdersService {
         private productRepository:Repository<Product>,
         @InjectRepository(OrderDetails)
         private orderDetailsRepository: Repository<OrderDetails>
-    ) {}
-    
-    async addOrder(createOrderDto:CreateOrderDto) {
-        const {userId , products}: CreateOrderDto = createOrderDto; 
-
-        // Verificar que el usuario existe
-        const user:User = await this.usersRepository.findOne({where: {id: userId}});
-        if(!user) {
-            throw new NotFoundException('User not found.')
-        }
-
-        // Obtener productos por sus IDs
-        const productIds: string[] = products.map( product => product.id);
+        ) {}
         
-        const productEntities: Product[] = await this.productRepository.findBy({id:In(productIds)});
-        if (productEntities.length !== productIds.length) {
-            throw new NotFoundException('One or more products not found');
-        }
-
-        // Verificar que todos los productos tienen stock suficiente
-        const insufficientStock: boolean = productEntities.some(product => product.stock <= 0);
-        if (insufficientStock) {
-            throw new NotFoundException('One or more products are out of stock.');
-        };
-
-        // Calcular el precio total
-        const calculateTotalPrice = (products: Product[]): number => {
-            let total: number = 0;
-            for (const product of products) {                
-                total += Number(product.price);
+        async addOrder(createOrderDto:CreateOrderDto) {
+            const {userId , products}: CreateOrderDto = createOrderDto; 
+            
+            // Verificar que el usuario existe
+            const user:User = await this.usersRepository.findOne({where: {id: userId}});
+            if(!user) {
+                throw new NotFoundException('User not found.')
             }
-            return total; 
-        }
-
-        // Crear y guardar OrderDetails
-        const orderDetails:OrderDetails = this.orderDetailsRepository.create({
-            products_id: productEntities,
-            price: calculateTotalPrice(productEntities), 
-        });        
-        
-        const savedOrderDetails:OrderDetails = await this.orderDetailsRepository.save(orderDetails);   
-
-        // Crear nueva orden
-        const newOrder = this.ordersRepository.create({
-            user_id: user, 
-            date: new Date(),
-            orderDetails_id: savedOrderDetails
-        })
-
-        // Guardar nueva orden
-        await this.ordersRepository.save(newOrder);
-
-        // Actualizar stock de productos
-        for (const product of productEntities) {
-            product.stock -= 1;
-            await this.productRepository.save(product);
-        }
-
-        return newOrder;
-    }
-    
-
-    async getOrder(orderId:string) {
-        const results = await this.ordersRepository.findOne({
-            where:{ id: orderId },
-            relations: {
-                user_id: true,
-                orderDetails_id: {
-                    products_id: true 
+            
+            // Obtener productos por sus IDs
+            const productIds: string[] = products.map( product => product.id);
+            
+            const productEntities: Product[] = await this.productRepository.findBy({id:In(productIds)});
+            if (productEntities.length !== productIds.length) {
+                throw new NotFoundException('One or more products not found');
+            }
+            
+            // Verificar que todos los productos tienen stock suficiente
+            const insufficientStock: boolean = productEntities.some(product => product.stock <= 0);
+            if (insufficientStock) {
+                throw new NotFoundException('One or more products are out of stock.');
+            };
+            
+            // Calcular el precio total
+            const calculateTotalPrice = (products: Product[]): number => {
+                let total: number = 0;
+                for (const product of products) {                
+                    total += Number(Number(product.price).toFixed(2));
                 }
+                return total; 
             }
-        });
-
-        if (!results) {
-            throw new NotFoundException('Order not found')
+            
+            // Crear y guardar OrderDetails
+            const orderDetails:OrderDetails = this.orderDetailsRepository.create({
+                products_id: productEntities,
+                price: calculateTotalPrice(productEntities), 
+            });        
+            
+            const savedOrderDetails:OrderDetails = await this.orderDetailsRepository.save(orderDetails);   
+            
+            // Crear nueva orden
+            const newOrder = this.ordersRepository.create({
+                user_id: user, 
+                date: new Date(),
+                orderDetails_id: savedOrderDetails
+            })
+            
+            // Guardar nueva orden
+            await this.ordersRepository.save(newOrder);
+            
+            // Actualizar stock de productos
+            for (const product of productEntities) {
+                product.stock -= 1;
+                await this.productRepository.save(product);
+            }
+            
+            return newOrder;
         }
-
-        return results
-    }    
-}
+        
+        
+        async getOrder(orderId:string) {
+            const results = await this.ordersRepository.findOne({
+                where:{ id: orderId },
+                relations: {
+                    user_id: true,
+                    orderDetails_id: {
+                        products_id: true 
+                    }
+                }
+            });
+            
+            if (!results) {
+                throw new NotFoundException('Order not found')
+            }
+            
+            return results
+        }    
+        
+        
+        async getAllOrders() {
+            const orders = await this.ordersRepository.find()
+            return orders
+        }
+    }

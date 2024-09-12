@@ -6,13 +6,12 @@ import { Repository } from "typeorm";
 import * as bcrypt from 'bcrypt'
 import { JwtService } from "@nestjs/jwt";
 import { Role } from "./roles.enum";
-import { UsersService } from "src/users/users.service";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class AuthService{
     constructor (
         @InjectRepository(User) private userRepository: Repository<User>,
-        // crear userrepository para resolver todo este embrollo, por ahora voy a usar el service
         private readonly usersService:UsersService,
         private readonly jwtService: JwtService
     ) {}
